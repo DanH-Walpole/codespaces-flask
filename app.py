@@ -32,6 +32,10 @@ class Message(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
+# Ensure database tables are created
+with app.app_context():
+    db.create_all()
+
 @app.route('/')
 def home():
     return render_template('index.html', title='Flask Chat App')
