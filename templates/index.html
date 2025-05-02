@@ -1,19 +1,110 @@
 <head>
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .App-header {
+            background-color: #282c34;
+            padding: 3rem 2rem;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .App-logo {
+            height: 180px;
+            animation: App-logo-pulse 3s infinite ease-in-out;
+        }
+        @keyframes App-logo-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .button {
+            margin-top: 2rem;
+            padding: 14px 28px;
+            font-size: 18px;
+            color: white;
+            background-color: #007aff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .button:hover {
+            background-color: #0062cc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .features {
+            display: flex;
+            justify-content: center;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        .feature {
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 1rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            width: 250px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+    </style>
+</head>
 <body>
     <div class="App">
         <header class="App-header">
             <img src="{{ url_for('static', filename='Octocat.png') }}" class="App-logo" alt="logo" />
-            <p>
-                GitHub Codespaces <span class="heart">♥️</span> Flask
+            <h1>Welcome to Flask Chat</h1>
+            <p class="subtitle">
+                A real-time chat application built with Flask and Socket.IO. Connect with friends and colleagues instantly!
             </p>
-            <p class="small">
-                Edit <code>templates/index.html</code> and refresh to see your changes!
-            </p>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">💬</div>
+                    <h3>Real-Time Messaging</h3>
+                    <p>Instant message delivery powered by WebSockets</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Secure Login</h3>
+                    <p>User authentication to keep your conversations private</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Responsive Design</h3>
+                    <p>Works great on desktop and mobile devices</p>
+                </div>
+            </div>
+            
+            <a href="/login" class="button">Start Chatting Now</a>
         </header>
     </div>
 </body>
-
 </html>
