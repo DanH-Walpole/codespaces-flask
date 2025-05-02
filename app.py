@@ -8,9 +8,14 @@ from datetime import datetime
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 
-# Configure database (using SQLite for testing in Codespace)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///flaskapp.db')
+# Configure database - SQLite
+# Use instance folder for SQLite database
+db_path = os.path.join(app.instance_path, 'flaskapp.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Ensure instance folder exists
+os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
 db = SQLAlchemy(app)
 socketio = SocketIO(app)

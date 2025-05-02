@@ -5,7 +5,8 @@ from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 
 # Database connection
-DB_URL = os.environ.get('DATABASE_URL', 'sqlite:///flaskapp.db')
+postgres_url = 'postgresql://vscode:@localhost/flaskapp'
+DB_URL = os.environ.get('DATABASE_URL', postgres_url)
 engine = create_engine(DB_URL)
 Base = declarative_base()
 
