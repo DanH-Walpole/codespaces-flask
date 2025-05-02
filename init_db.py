@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
 
 # Database connection
-DB_URL = os.environ.get('DATABASE_URL', 'postgresql://flaskapp:flaskapp@localhost/flaskapp')
+DB_URL = os.environ.get('DATABASE_URL', 'sqlite:///flaskapp.db')
 engine = create_engine(DB_URL)
 Base = declarative_base()
 
