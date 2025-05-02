@@ -5,7 +5,7 @@
   },
   "waitFor": "onCreateCommand",
   "updateContentCommand": "pip install -r requirements.txt",
-  "postCreateCommand": "",
+  "postCreateCommand": "bash ./.devcontainer/init-db.sh",
   "postAttachCommand": {
     "server": "flask --debug run"
   },
@@ -13,6 +13,10 @@
     "5000": {
       "label": "Application",
       "onAutoForward": "openPreview"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "notify"
     }
   },
   "customizations": {
@@ -23,9 +27,16 @@
     },
     "vscode": {
       "extensions": [
-        "ms-python.python"
+        "ms-python.python",
+        "ckolkman.vscode-postgres"
       ]
     }
   },
-  "forwardPorts": [5000]
+  "features": {
+    "ghcr.io/devcontainers/features/postgresql:1": {
+      "version": "latest",
+      "pgAdmin": true
+    }
+  },
+  "forwardPorts": [5000, 5432]
 }

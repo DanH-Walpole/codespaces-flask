@@ -1,16 +1,36 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_sqlalchemy import SQLAlchemy
 import secrets
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(16))
+
+# Configure PostgreSQL database
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://flaskapp:flaskapp@localhost/flaskapp')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
 socketio = SocketIO(app)
 
-# Storing messages in memory for demo purposes
-# In a real app, you would use a database
-messages = []
-users = {}  # Store usernames and passwords for demo
+# Database models
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)  # In production, use password hashing
+    messages = db.relationship('Message', backref='user', lazy=True)
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 @app.route('/')
 def home():
@@ -27,15 +47,20 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
-        # Simple authentication for demo purposes
-        # In a real app, you would check against a database and hash passwords
-        if username in users and users[username] == password:
+        # Check if user exists
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.password == password:  # In production, use password verification
             session['username'] = username
+            session['user_id'] = user.id
             return redirect(url_for('chat'))
-        elif username not in users:
-            # Auto-register new users for the demo
-            users[username] = password
+        elif not user:
+            # Auto-register new users
+            new_user = User(username=username, password=password)
+            db.session.add(new_user)
+            db.session.commit()
             session['username'] = username
+            session['user_id'] = new_user.id
             return redirect(url_for('chat'))
         else:
             error = "Invalid credentials. Please try again."
@@ -46,11 +71,17 @@ def login():
 def chat():
     if 'username' not in session:
         return redirect(url_for('login'))
-    return render_template('chat.html', messages=messages, current_user=session['username'])
+        
+    # Get recent messages from database
+    messages = Message.query.order_by(Message.timestamp).all()
+    message_list = [{'user': msg.user.username, 'content': msg.content} for msg in messages]
+    
+    return render_template('chat.html', messages=message_list, current_user=session['username'])
 
 @app.route('/logout')
 def logout():
     session.pop('username', None)
+    session.pop('user_id', None)
     return redirect(url_for('home'))
 
 @socketio.on('connect')
@@ -66,12 +97,20 @@ def handle_disconnect():
 
 @socketio.on('send_message')
 def handle_message(data):
-    if 'username' in session:
+    if 'username' in session and 'user_id' in session:
+        # Save message to the database
+        new_message = Message(
+            content=data['content'],
+            user_id=session['user_id']
+        )
+        db.session.add(new_message)
+        db.session.commit()
+        
+        # Broadcast the message
         message = {
             'user': session['username'],
             'content': data['content']
         }
-        messages.append(message)
         emit('receive_message', message, to='chat_room')
 
 if __name__ == '__main__':

@@ -3,3 +3,7 @@ flask
 flask-socketio
 python-dotenv
 eventlet
+# PostgreSQL dependencies
+psycopg2-binary
+SQLAlchemy
+Flask-SQLAlchemy
